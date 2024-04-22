@@ -1,0 +1,466 @@
+Text cell <G7Tg7Mqbsooc>
+# %% [markdown]
+**IMPORTING LIBRARIES**
+
+Code cell <JLp47kejszBz>
+# %% [code]
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+%matplotlib inline
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import classification_report, accuracy_score
+
+Text cell <BLQV6V4ntIH2>
+# %% [markdown]
+**IMPORTING DATASET**
+
+Code cell <ZGqNB7xCtQEK>
+# %% [code]
+columns = ["sepal_length", "sepal_width", "petal_length", "petal_width", "species"]
+iris_data = pd.read_csv('IRIS Flower.csv',names=columns)
+
+Code cell <0k2KYOq_uw_4>
+# %% [code]
+iris_data.head()
+Execution output from Apr 17, 2024 8:28 AM
+11KB
+	text/plain
+		sepal_length  sepal_width  petal_length  petal_width      species
+		0  sepal_length  sepal_width  petal_length  petal_width      species
+		1           5.1          3.5           1.4          0.2  Iris-setosa
+		2           4.9            3           1.4          0.2  Iris-setosa
+		3           4.7          3.2           1.3          0.2  Iris-setosa
+		4           4.6          3.1           1.5          0.2  Iris-setosa
+
+Code cell <5VcA253yvB7v>
+# %% [code]
+iris_data.describe()
+Execution output from Apr 17, 2024 8:28 AM
+10KB
+	text/plain
+		sepal_length sepal_width petal_length petal_width      species
+		count           151         151          151         151          151
+		unique           36          24           44          23            4
+		top               5           3          1.5         0.2  Iris-setosa
+		freq             10          26           14          28           50
+
+Code cell <_bzkmVQx2Bko>
+# %% [code]
+iris_data.tail(151)
+Execution output from Apr 17, 2024 8:28 AM
+12KB
+	text/plain
+		sepal_length  sepal_width  petal_length  petal_width         species
+		0    sepal_length  sepal_width  petal_length  petal_width         species
+		1             5.1          3.5           1.4          0.2     Iris-setosa
+		2             4.9            3           1.4          0.2     Iris-setosa
+		3             4.7          3.2           1.3          0.2     Iris-setosa
+		4             4.6          3.1           1.5          0.2     Iris-setosa
+		..            ...          ...           ...          ...             ...
+		146           6.7            3           5.2          2.3  Iris-virginica
+		147           6.3          2.5             5          1.9  Iris-virginica
+		148           6.5            3           5.2            2  Iris-virginica
+		149           6.2          3.4           5.4          2.3  Iris-virginica
+		150           5.9            3           5.1          1.8  Iris-virginica
+		
+		[151 rows x 5 columns]
+
+Code cell <ruZiVzKc2S1P>
+# %% [code]
+n = len(iris_data[iris_data['species'] == 'versicolor'])
+print("No of Versicolor in Dataset:",n)
+Execution output from Apr 17, 2024 8:28 AM
+0KB
+	Stream
+		No of Versicolor in Dataset: 0
+
+Code cell <4tZKc1yb2mDT>
+# %% [code]
+n1 = len(iris_data[iris_data['species'] == 'virginica'])
+print("No of Virginica in Dataset:",n1)
+Execution output from Apr 17, 2024 8:28 AM
+0KB
+	Stream
+		No of Virginica in Dataset: 0
+
+Code cell <-u6OarH82x03>
+# %% [code]
+n2 = len(iris_data[iris_data['species'] == 'setosa'])
+print("No of Setosa in Dataset:",n2)
+Execution output from Apr 17, 2024 8:28 AM
+0KB
+	Stream
+		No of Setosa in Dataset: 0
+
+Code cell <HN3aGyXl27-z>
+# %% [code]
+fig = plt.figure()
+ax = fig.add_axes([0,0,1,1])
+ax.axis('equal')
+l = ['Versicolor', 'Setosa', 'Virginica']
+s = [50,50,50]
+ax.pie(s, labels = l,autopct='%1.2f%%')
+plt.show()
+Execution output from Apr 17, 2024 8:28 AM
+29KB
+	text/plain
+		<Figure size 640x480 with 1 Axes>
+
+Code cell <dvvNqcYB7ASx>
+# %% [code]
+plt.figure(1)
+sns.boxplot(iris_data["sepal_length"])
+plt.figure(2)
+sns.boxplot(iris_data["sepal_width"])
+plt.show()
+Execution output from Apr 17, 2024 8:37 AM
+48KB
+	text/plain
+		<Figure size 640x480 with 1 Axes>
+		<Figure size 640x480 with 1 Axes>
+
+Code cell <gWGNHdIcE02V>
+# %% [code]
+iris_data.hist()
+plt.show()
+Execution output from Apr 17, 2024 8:52 AM
+14KB
+	text/plain
+		<Figure size 640x480 with 1 Axes>
+
+Code cell <nH-hRQvdEelo>
+# %% [code]
+# Convert the 'sepal_length' column to float
+iris_data['sepal_length'] = pd.to_numeric(iris_data['sepal_length'], errors='coerce')
+
+# Repeat the conversion for other non-numerical columns
+iris_data.hist()
+plt.show()
+# Print the unique values in each column
+for col in iris_data.columns:
+    print(f"Unique values in '{col}': {iris_data[col].unique()}")
+
+# Check for missing values
+iris_data.isnull().sum()
+Execution output from Apr 17, 2024 8:50 AM
+15KB
+	Stream
+		Unique values in 'sepal_length': [nan 5.1 4.9 4.7 4.6 5.  5.4 4.4 4.8 4.3 5.8 5.7 5.2 5.5 4.5 5.3 7.  6.4
+		 6.9 6.5 6.3 6.6 5.9 6.  6.1 5.6 6.7 6.2 6.8 7.1 7.6 7.3 7.2 7.7 7.4 7.9]
+		Unique values in 'sepal_width': ['sepal_width' '3.5' '3' '3.2' '3.1' '3.6' '3.9' '3.4' '2.9' '3.7' '4'
+		 '4.4' '3.8' '3.3' '4.1' '4.2' '2.3' '2.8' '2.4' '2.7' '2' '2.2' '2.5'
+		 '2.6']
+		Unique values in 'petal_length': ['petal_length' '1.4' '1.3' '1.5' '1.7' '1.6' '1.1' '1.2' '1' '1.9' '4.7'
+		 '4.5' '4.9' '4' '4.6' '3.3' '3.9' '3.5' '4.2' '3.6' '4.4' '4.1' '4.8'
+		 '4.3' '5' '3.8' '3.7' '5.1' '3' '6' '5.9' '5.6' '5.8' '6.6' '6.3' '6.1'
+		 '5.3' '5.5' '6.7' '6.9' '5.7' '6.4' '5.4' '5.2']
+		Unique values in 'petal_width': ['petal_width' '0.2' '0.4' '0.3' '0.1' '0.5' '0.6' '1.4' '1.5' '1.3' '1.6'
+		 '1' '1.1' '1.8' '1.2' '1.7' '2.5' '1.9' '2.1' '2.2' '2' '2.4' '2.3']
+		Unique values in 'species': ['species' 'Iris-setosa' 'Iris-versicolor' 'Iris-virginica']
+	text/plain
+		<Figure size 640x480 with 1 Axes>
+		sepal_length    1
+		sepal_width     0
+		petal_length    0
+		petal_width     0
+		species         0
+		dtype: int64
+
+Code cell <h5ffjw4_8YzA>
+# %% [code]
+iris_data.plot(kind ='density',subplots = True, layout =(3,3),sharex = False)
+Execution output from Apr 17, 2024 8:51 AM
+12KB
+	text/plain
+		array([[<Axes: ylabel='Density'>, <Axes: ylabel='Density'>,
+		        <Axes: ylabel='Density'>],
+		       [<Axes: ylabel='Density'>, <Axes: ylabel='Density'>,
+		        <Axes: ylabel='Density'>],
+		       [<Axes: ylabel='Density'>, <Axes: ylabel='Density'>,
+		        <Axes: ylabel='Density'>]], dtype=object)
+		<Figure size 640x480 with 9 Axes>
+
+Code cell <IQzA_COa8iCb>
+# %% [code]
+iris_data.plot(kind ='box',subplots = True, layout =(2,5),sharex = False)
+Execution output from Apr 17, 2024 8:54 AM
+6KB
+	text/plain
+		sepal_length    Axes(0.125,0.53;0.133621x0.35)
+		dtype: object
+		<Figure size 640x480 with 10 Axes>
+
+Code cell <inp_A2wX8vVz>
+# %% [code]
+plt.figure(figsize=(15,10))
+plt.subplot(2,2,1)
+sns.violinplot(x='species',y='petal_length',data=iris_data)
+plt.subplot(2,2,2)
+sns.violinplot(x='species',y='petal_width',data=iris_data)
+plt.subplot(2,2,3)
+sns.violinplot(x='species',y='sepal_length',data=iris_data)
+plt.subplot(2,2,4)
+sns.violinplot(x='species',y='sepal_width',data=iris_data)
+Execution output from Apr 17, 2024 8:54 AM
+165KB
+	text/plain
+		<Axes: xlabel='species', ylabel='sepal_width'>
+		<Figure size 1500x1000 with 4 Axes>
+
+Code cell <tEjMlr8m7quO>
+# %% [code]
+import seaborn as sns
+import matplotlib.pyplot as plt
+iris_data = sns.load_dataset('iris')
+sns.pairplot(iris_data, hue='species')
+plt.show()
+
+Execution output from Apr 17, 2024 8:55 AM
+334KB
+	text/plain
+		<Figure size 1117.75x1000 with 20 Axes>
+
+Code cell <X-ky9pZb26R->
+# %% [code]
+X = iris_data.drop("species", axis=1)
+X
+Execution output from Apr 17, 2024 8:55 AM
+14KB
+	text/plain
+		sepal_length  sepal_width  petal_length  petal_width
+		0             5.1          3.5           1.4          0.2
+		1             4.9          3.0           1.4          0.2
+		2             4.7          3.2           1.3          0.2
+		3             4.6          3.1           1.5          0.2
+		4             5.0          3.6           1.4          0.2
+		..            ...          ...           ...          ...
+		145           6.7          3.0           5.2          2.3
+		146           6.3          2.5           5.0          1.9
+		147           6.5          3.0           5.2          2.0
+		148           6.2          3.4           5.4          2.3
+		149           5.9          3.0           5.1          1.8
+		
+		[150 rows x 4 columns]
+
+Code cell <NQcXvlz33KSf>
+# %% [code]
+y = iris_data["species"]
+y
+Execution output from Apr 17, 2024 8:55 AM
+0KB
+	text/plain
+		0         setosa
+		1         setosa
+		2         setosa
+		3         setosa
+		4         setosa
+		         ...    
+		145    virginica
+		146    virginica
+		147    virginica
+		148    virginica
+		149    virginica
+		Name: species, Length: 150, dtype: object
+
+Code cell <0jZc_fP33zav>
+# %% [code]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+Code cell <8_8XHgw636bL>
+# %% [code]
+knn = KNeighborsClassifier(n_neighbors = 3)
+knn.fit(X_test, y_test)
+Execution output from Apr 17, 2024 8:55 AM
+5KB
+	text/plain
+		KNeighborsClassifier(n_neighbors=3)
+
+Code cell <S-U0GVVA4Esr>
+# %% [code]
+y_pred = knn.predict(X_test)
+
+Code cell <Ona3Jork4JSc>
+# %% [code]
+print("Accuracy:", accuracy_score(y_test, y_pred))
+Execution output from Apr 17, 2024 8:55 AM
+0KB
+	Stream
+		Accuracy: 1.0
+
+Code cell <dDeqvhuF4ORv>
+# %% [code]
+print(classification_report(y_test, y_pred))
+Execution output from Apr 17, 2024 8:55 AM
+0KB
+	Stream
+		precision    recall  f1-score   support
+		
+		      setosa       1.00      1.00      1.00        19
+		  versicolor       1.00      1.00      1.00        13
+		   virginica       1.00      1.00      1.00        13
+		
+		    accuracy                           1.00        45
+		   macro avg       1.00      1.00      1.00        45
+		weighted avg       1.00      1.00      1.00        45
+
+Text cell <uNf55Z7x8iMI>
+# %% [markdown]
+## **PRECISION**
+
+Text cell <nI4et2TE8npd>
+# %% [markdown]
+Precision is the ratio of correctly predicted positive observations to the total predicted positives.
+
+Text cell <i5Btynrp8rTw>
+# %% [markdown]
+**Precision = True positives/ (True positives + False positives)**
+
+Text cell <dpMuBq-_9s3F>
+# %% [markdown]
+## **Recall ( Sensitivity or true Positive rate)**
+
+Text cell <9biFSB6V-LcD>
+# %% [markdown]
+Recall is the ratio of correctly predicted positive observations to the total actual positives.
+
+Text cell <tcyx-2QK-bTW>
+# %% [markdown]
+**Recall = True Positives / True positives + False Negatives**
+
+Text cell <S9xl78fa-uVD>
+# %% [markdown]
+## **F1-Score**
+
+Text cell <b8DJSd4N-zjZ>
+# %% [markdown]
+F1-score is the harmonic mean of precision and recall, providing a balance between the two.
+
+Text cell <YLpFDpJH_Dud>
+# %% [markdown]
+**F1-Score = 2 × Precision × Recall / Precision + Recall**
+
+Text cell <jj1l3T6r_u8I>
+# %% [markdown]
+Recision+Recall 2×Precision×Recall}}]\text{Recall}}]
+
+Code cell <eGAKPRdK4S2R>
+# %% [code]
+X_test.head()
+Execution output from Apr 17, 2024 8:56 AM
+11KB
+	text/plain
+		sepal_length  sepal_width  petal_length  petal_width
+		73            6.1          2.8           4.7          1.2
+		18            5.7          3.8           1.7          0.3
+		118           7.7          2.6           6.9          2.3
+		78            6.0          2.9           4.5          1.5
+		76            6.8          2.8           4.8          1.4
+
+Code cell <mtBRm4Am4V4m>
+# %% [code]
+new_data = pd.DataFrame({"sepal_length":[5.1],"sepal_width":[3.5],"petal_length":[1.4],"petal_width":[0.2]})
+print(new_data)
+Execution output from Apr 17, 2024 8:56 AM
+0KB
+	Stream
+		sepal_length  sepal_width  petal_length  petal_width
+		0           5.1          3.5           1.4          0.2
+
+Code cell <KIaBvvoj46m5>
+# %% [code]
+prediction = knn.predict(new_data)
+print(prediction)
+Execution output from Apr 17, 2024 8:56 AM
+0KB
+	Stream
+		['setosa']
+
+Code cell <XuVECBv75REr>
+# %% [code]
+iris_data.iloc[100:]
+Execution output from Apr 17, 2024 8:56 AM
+22KB
+	text/plain
+		sepal_length  sepal_width  petal_length  petal_width    species
+		100           6.3          3.3           6.0          2.5  virginica
+		101           5.8          2.7           5.1          1.9  virginica
+		102           7.1          3.0           5.9          2.1  virginica
+		103           6.3          2.9           5.6          1.8  virginica
+		104           6.5          3.0           5.8          2.2  virginica
+		105           7.6          3.0           6.6          2.1  virginica
+		106           4.9          2.5           4.5          1.7  virginica
+		107           7.3          2.9           6.3          1.8  virginica
+		108           6.7          2.5           5.8          1.8  virginica
+		109           7.2          3.6           6.1          2.5  virginica
+		110           6.5          3.2           5.1          2.0  virginica
+		111           6.4          2.7           5.3          1.9  virginica
+		112           6.8          3.0           5.5          2.1  virginica
+		113           5.7          2.5           5.0          2.0  virginica
+		114           5.8          2.8           5.1          2.4  virginica
+		115           6.4          3.2           5.3          2.3  virginica
+		116           6.5          3.0           5.5          1.8  virginica
+		117           7.7          3.8           6.7          2.2  virginica
+		118           7.7          2.6           6.9          2.3  virginica
+		119           6.0          2.2           5.0          1.5  virginica
+		120           6.9          3.2           5.7          2.3  virginica
+		121           5.6          2.8           4.9          2.0  virginica
+		122           7.7          2.8           6.7          2.0  virginica
+		123           6.3          2.7           4.9          1.8  virginica
+		124           6.7          3.3           5.7          2.1  virginica
+		125           7.2          3.2           6.0          1.8  virginica
+		126           6.2          2.8           4.8          1.8  virginica
+		127           6.1          3.0           4.9          1.8  virginica
+		128           6.4          2.8           5.6          2.1  virginica
+		129           7.2          3.0           5.8          1.6  virginica
+		130           7.4          2.8           6.1          1.9  virginica
+		131           7.9          3.8           6.4          2.0  virginica
+		132           6.4          2.8           5.6          2.2  virginica
+		133           6.3          2.8           5.1          1.5  virginica
+		134           6.1          2.6           5.6          1.4  virginica
+		135           7.7          3.0           6.1          2.3  virginica
+		136           6.3          3.4           5.6          2.4  virginica
+		137           6.4          3.1           5.5          1.8  virginica
+		138           6.0          3.0           4.8          1.8  virginica
+		139           6.9          3.1           5.4          2.1  virginica
+		140           6.7          3.1           5.6          2.4  virginica
+		141           6.9          3.1           5.1          2.3  virginica
+		142           5.8          2.7           5.1          1.9  virginica
+		143           6.8          3.2           5.9          2.3  virginica
+		144           6.7          3.3           5.7          2.5  virginica
+		145           6.7          3.0           5.2          2.3  virginica
+		146           6.3          2.5           5.0          1.9  virginica
+		147           6.5          3.0           5.2          2.0  virginica
+		148           6.2          3.4           5.4          2.3  virginica
+		149           5.9          3.0           5.1          1.8  virginica
+
+Code cell <TZScakgF5zax>
+# %% [code]
+# Import necessary libraries
+from sklearn.svm import SVC
+
+# Initialize the SVC model with desired parameters
+model_svc = SVC(kernel='linear', C=1.0)
+
+# Assuming you have already loaded and preprocessed your training data into variables X_train and y_train
+model_svc.fit(X_train, y_train)
+
+# Define the new data point to predict (replace x_new with your actual data point)
+x_new = [5.1, 3.5, 1.4, 0.2]
+
+# Predict the class of the new data point
+prediction = model_svc.predict([x_new])
+
+# Print the prediction
+print("prediction of species: {}".format(prediction[0]))
+
+Execution output from Apr 17, 2024 8:56 AM
+0KB
+	Stream
+		prediction of species: setosa
+		/usr/local/lib/python3.10/dist-packages/sklearn/base.py:439: UserWarning: X does not have valid feature names, but SVC was fitted with feature names
+		  warnings.warn(
+
+
